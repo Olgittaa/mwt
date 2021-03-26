@@ -3,25 +3,35 @@ import {FilmsServerService} from "../../../services/films-server.service";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {DataSource} from "@angular/cdk/collections";
 import {Film} from "../../../entities/film";
-import {Observable, of, pipe} from "rxjs";
-import {map, mergeAll, mergeMap, switchMap, tap} from "rxjs/operators";
+import {Observable, of} from "rxjs";
+import {map, mergeAll, switchMap, tap} from "rxjs/operators";
 import {MatSort, Sort} from "@angular/material/sort";
+import {OmdbService} from "../../../services/omdb.service";
+import {animate, state, style, transition, trigger} from '@angular/animations';
+import {Omdb} from "../../../entities/omdb";
 
 @Component({
   selector: 'app-films-list',
   templateUrl: './films-list.component.html',
-  styleUrls: ['./films-list.component.css']
+  styleUrls: ['./films-list.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class FilmsListComponent implements OnInit, AfterViewInit {
   dataSource: FilmsDataSource
   filter$ = new EventEmitter<string>()
   columnsToDisplay = ['id', 'nazov', 'slovenskyNazov', 'rok', 'afi1998', 'afi2007']
-  @ViewChild(MatPaginator) paginator
-    :
-    MatPaginator
+  expandedElement: Omdb;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator
   @ViewChild(MatSort) sort: MatSort
 
-  constructor(private filmsServerService: FilmsServerService) {
+  constructor(private filmsServerService: FilmsServerService, private omdbService: OmdbService) {
   }
 
   ngOnInit(): void {
@@ -37,6 +47,17 @@ export class FilmsListComponent implements OnInit, AfterViewInit {
 
   applyFilter(value: string) {
     this.filter$.next(value)
+  }
+
+  getDetail(film: any) {
+    if (this.expandedElement && this.expandedElement.Title === film.nazov) {
+      this.expandedElement = null;
+    } else {
+      this.omdbService.getFilms(film.nazov).subscribe(value => {
+        console.log(value)
+        this.expandedElement = value
+      });
+    }
   }
 }
 
@@ -56,7 +77,7 @@ class FilmsDataSource implements DataSource<Film> {
   setObservables(paginator: MatPaginator, filter$: Observable<string>, sort: MatSort) {
     this.paginator = paginator
     this.pageSize = paginator.pageSize
-    this.indexFrom = paginator.pageSize + paginator.pageIndex
+    this.indexFrom = paginator.pageSize * paginator.pageIndex
     this.futureObservables.next(of(null))
     this.futureObservables.next(this.paginator.page.pipe(
       tap((event: PageEvent) => {

@@ -1,1 +1,24 @@
-<p>film.ts-detail works!</p>
+<div *ngIf="film" class="inline">
+  <img src="{{film.Poster}}" alt="Poster"/>
+  <div>
+    <p><strong>Popis: </strong>{{film.Plot}}</p>
+    <p><strong>Dátum výroby: </strong>{{film.Released}}</p>
+    <p><strong>Žáner: </strong>{{film.Genre}}</p>
+    <p><strong>Dĺžka: </strong> {{film.Runtime}}</p>
+    <p><strong>Krajina a výroba: </strong> {{film.Country}}; {{film.Production}}</p>
+    <p><strong>Režisér: </strong> {{film.Director}}</p>
+    <p><strong>Hrajú: </strong> {{film.Actors}}</p>
+    <p><strong>Príjem: </strong> {{film.BoxOffice === "N/A" ? "neznámy" : film.BoxOffice}}</p>
+    <p><strong>Vyznamenavania: </strong> {{film.Awards}}</p>
+    <mat-accordion>
+      <mat-expansion-panel hideToggle>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Ukázať hodnotenia
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <p *ngFor="let rating of film.Ratings">{{rating.Source}}: {{rating.Value}}</p>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {Omdb} from "../../../entities/omdb";
 
 @Component({
   selector: 'app-film-detail',
@@ -6,6 +7,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./film-detail.component.css']
 })
 export class FilmDetailComponent implements OnInit {
+
+  @Input()
+  film: Omdb
 
   constructor() { }
 
