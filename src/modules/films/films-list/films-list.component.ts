@@ -30,6 +30,7 @@ export class FilmsListComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator
   @ViewChild(MatSort) sort: MatSort
+  private canExpand: boolean = true;
 
   constructor(private filmsServerService: FilmsServerService, private omdbService: OmdbService) {
   }
@@ -37,6 +38,7 @@ export class FilmsListComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     if (!this.filmsServerService.token) {
       this.columnsToDisplay = ["id", "nazov", "rok"]
+      this.canExpand = false;
     }
     this.dataSource = new FilmsDataSource(this.filmsServerService)
   }
@@ -50,13 +52,10 @@ export class FilmsListComponent implements OnInit, AfterViewInit {
   }
 
   getDetail(film: any) {
-    if (this.expandedElement && this.expandedElement.Title === film.nazov) {
+    if (!this.canExpand || (this.expandedElement && this.expandedElement.Title === film.nazov)) {
       this.expandedElement = null;
     } else {
-      this.omdbService.getFilms(film.nazov).subscribe(value => {
-        console.log(value)
-        this.expandedElement = value
-      });
+      this.omdbService.getFilms(film.nazov).subscribe(value => this.expandedElement = value);
     }
   }
 }
@@ -118,7 +117,7 @@ class FilmsDataSource implements DataSource<Film> {
   connect(): Observable<Film[]> {
     return this.futureObservables.pipe(
       mergeAll(),
-      switchMap(value => this.filmsServerService.getFilms(
+      switchMap(() => this.filmsServerService.getFilms(
         this.indexFrom, this.indexFrom + this.pageSize, this.filter, this.orderBy, this.descending
       ).pipe(map(response => {
         this.paginator.length = response.totalCount
