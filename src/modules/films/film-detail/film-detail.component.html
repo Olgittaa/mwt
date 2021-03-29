@@ -13,8 +13,8 @@
     <mat-accordion>
       <mat-expansion-panel hideToggle>
         <mat-expansion-panel-header>
-          <mat-panel-title>
-            Ukázať hodnotenia
+          <mat-panel-title (click)="hodnotenia = !hodnotenia">
+            {{hodnotenia ? "Ukázať hodnotenia" : "Skryť hodnotenia"}}
           </mat-panel-title>
         </mat-expansion-panel-header>
         <p *ngFor="let rating of film.Ratings">{{rating.Source}}: {{rating.Value}}</p>

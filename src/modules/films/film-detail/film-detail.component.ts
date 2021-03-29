@@ -10,6 +10,7 @@ export class FilmDetailComponent implements OnInit {
 
   @Input()
   film: Omdb
+  hodnotenia: boolean = true;
 
   constructor() { }
 
